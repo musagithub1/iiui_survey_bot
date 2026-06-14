@@ -519,7 +519,19 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer
 st.markdown(
-    "<p style='text-align:center; color:rgba(255,255,255,0.2); font-size:0.75rem; "
-    "margin-top:1.5rem;'>IIUI Survey Bot • Educational Use Only</p>",
+    """
+    <div style='text-align:center; margin-top:2rem;'>
+        <p style='color:rgba(255,255,255,0.6); font-size:0.85rem; margin-bottom:0.3rem;'>
+            Developed by <strong>Musa Khan</strong>
+        </p>
+        <p style='font-size:0.9rem;'>
+            <a href="https://www.linkedin.com/in/mussakhan-ai/" target="_blank" style='color:#60a5fa; text-decoration:none; margin-right:1rem;'>💼 LinkedIn</a>
+            <a href="https://github.com/musagithub1" target="_blank" style='color:#60a5fa; text-decoration:none;'>🐙 GitHub</a>
+        </p>
+        <p style='color:rgba(255,255,255,0.2); font-size:0.75rem; margin-top:1.5rem;'>
+            IIUI Survey Bot • Educational Use Only
+        </p>
+    </div>
+    """,
     unsafe_allow_html=True
 )
