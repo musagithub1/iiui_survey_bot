@@ -116,13 +116,20 @@ div[data-baseweb="textarea"] {
 /* Password eye icon */
 div[data-baseweb="input"] button,
 div[data-baseweb="input"] button:hover,
-div[data-baseweb="input"] button:focus {
+div[data-baseweb="input"] button:focus,
+div[data-baseweb="input"] [role="button"] {
     background: #1a1740 !important;
     background-color: #1a1740 !important;
     border: none !important;
     box-shadow: none !important;
-    color: rgba(255,255,255,0.55) !important;
+    color: rgba(255,255,255,0.60) !important;
     border-radius: 0 12px 12px 0 !important;
+    width: 40px !important;
+}
+div[data-baseweb="input"] button svg,
+div[data-baseweb="input"] [role="button"] svg {
+    fill: rgba(255,255,255,0.60) !important;
+    stroke: rgba(255,255,255,0.60) !important;
 }
 
 /* ── Selectbox ── */
@@ -133,25 +140,32 @@ div[data-baseweb="input"] button:focus {
     color: #fff !important;
 }
 
-/* ── Primary button ── */
-.stButton > button[kind="primary"] {
+/* ── Buttons (works across all Streamlit versions) ── */
+.stButton > button {
     background: linear-gradient(135deg, #7c3aed, #4f46e5) !important;
-    color: #fff !important;
+    color: #ffffff !important;
     border: none !important;
     border-radius: 14px !important;
     padding: 0.75rem 2rem !important;
     font-size: 1rem !important;
     font-weight: 600 !important;
     width: 100% !important;
+    cursor: pointer !important;
     transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-    box-shadow: 0 6px 20px rgba(124,58,237,0.35) !important;
+    box-shadow: 0 6px 20px rgba(124,58,237,0.40) !important;
+    letter-spacing: 0.01em !important;
 }
-.stButton > button[kind="primary"]:hover {
+.stButton > button:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 10px 28px rgba(124,58,237,0.50) !important;
+    box-shadow: 0 10px 30px rgba(124,58,237,0.55) !important;
+    color: #ffffff !important;
 }
-.stButton > button[kind="primary"]:active {
+.stButton > button:active {
     transform: translateY(0) !important;
+}
+.stButton > button:focus {
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.40) !important;
+    color: #ffffff !important;
 }
 
 /* ── Log box ── */
