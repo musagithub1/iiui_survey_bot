@@ -1,216 +1,175 @@
 # 🤖 IIUI Survey Bot
 
-An automated Python script that uses Selenium to fill out university survey forms on the **IIUI ERP portal** — saving you time on repetitive course evaluations.
+An automated Python bot that logs into the **IIUI ERP portal**, discovers every pending course and teacher evaluation, fills all answers automatically, and submits — without any manual clicks.
 
-> ⚠️ **Disclaimer**: This tool is for educational purposes and personal automation only. Please make sure you comply with your university's IT policies before using automation tools.
+It comes with two ways to run it:
+- **Streamlit Web UI** — enter your credentials in a browser form and watch live progress
+- **Terminal CLI** — run directly from the command line
+
+> ⚠️ **Disclaimer**: This tool is for educational purposes and personal automation only. Please ensure compliance with your university's IT and academic integrity policies before use.
 
 ---
 
 ## ✨ Features
 
-- 🔐 **Automated Login** — securely logs in using credentials stored in a `.env` file (never hardcoded).
-- ✅ **Login Verification** — confirms the dashboard actually loaded after login; detects and reports error messages from the portal.
-- ⭐ **Interactive Rating Selection** — choose your preferred rating (Strongly Agree → Strongly Disagree) from a menu at startup.
-- 🎯 **Auto-Fill Surveys** — fills radio buttons, text inputs, textareas, **and `<select>` dropdowns** in one pass.
-- 🔄 **Automatic Retry** — retries login up to 3× and fill up to 2× on network or page-load failures.
-- 📸 **Screenshot on Failure** — saves a PNG to `./debug_screenshots/` whenever something goes wrong, so you can diagnose issues instantly.
-- 🚗 **Auto-Navigate to Surveys** — after login, automatically opens the surveys listing page.
-- 🕶️ **Headless Mode** — run with or without a visible browser via the `IIUI_HEADLESS` env var.
-- ⏱️ **Configurable Timeout** — set `IIUI_WAIT_TIMEOUT` in your `.env` to adjust for slow connections.
-- 🛡️ **Robust Selectors** — tries multiple CSS/XPath fallbacks for login fields so a minor ERP page update won't break the bot.
+| Feature | Details |
+|---|---|
+| 🔐 **Secure Credentials** | Entered via `.env` file or the Streamlit form — never hardcoded |
+| 🔄 **Full Automation** | Logs in → scans survey table → fills every pending form → submits — all automatically |
+| 🎯 **Smart Survey Discovery** | Reads the ERP table, skips already-submitted rows, queues all pending ones |
+| ⭐ **Rating Selection** | Choose Strongly Agree → Strongly Disagree before starting |
+| 💬 **Auto Comment** | Fills all textarea fields with a custom comment |
+| 🖱️ **Handles All Field Types** | Radio buttons, text inputs, textareas, and `<select>` dropdowns |
+| 🔁 **Retry Logic** | Retries login 3× and form fill 2× on any network or page-load failure |
+| 📸 **Screenshot on Failure** | Saves a debug PNG to `./debug_screenshots/` whenever something goes wrong |
+| 🌐 **Streamlit Web UI** | Premium dark-themed browser interface with live log streaming and result summary |
+| 🕶️ **Headless Mode** | Run Chrome without a visible window (`IIUI_HEADLESS=true`) |
+| ⏱️ **Configurable Timeout** | Set `IIUI_WAIT_TIMEOUT` for slow connections |
 
 ---
 
 ## 🧰 Prerequisites
 
-Before you start, make sure you have:
-
-1. **Python 3.10 or newer** — [Download Python](https://www.python.org/downloads/)
-2. **Google Chrome** — [Download Chrome](https://www.google.com/chrome/)
-3. **Git** (optional, only needed if cloning the repo) — [Download Git](https://git-scm.com/downloads)
-
-### ✅ Checking if Python is installed
-
-**Windows:**
-```bash
-python --version
-```
-
-**macOS / Linux:**
-```bash
-python3 --version
-```
-
-If you see a version number (e.g., `Python 3.11.4`), you're good to go. If not, install Python using the link above — and on Windows, make sure to check the box **"Add Python to PATH"** during installation.
+1. **Python 3.10+** — [Download](https://www.python.org/downloads/)
+2. **Google Chrome** — [Download](https://www.google.com/chrome/)
+3. **Git** *(optional, for cloning)* — [Download](https://git-scm.com/downloads)
 
 ---
 
 ## 📥 Installation
 
-### Step 1: Get the project
+### Step 1 — Get the project
 
-**Option A — Clone with Git:**
+**Clone with Git:**
 ```bash
 git clone https://github.com/musagithub1/iiui_survey_bot.git
 cd iiui_survey_bot
 ```
 
-**Option B — Download manually:**
-1. Click the green **"Code"** button on the GitHub repo page.
-2. Select **"Download ZIP"**.
-3. Extract the ZIP file to a folder of your choice.
-4. Open a terminal/command prompt in that folder.
+**Or download ZIP** from the GitHub page and extract it.
 
-### Step 2: Create a virtual environment (recommended)
+---
 
-A virtual environment keeps this project's dependencies separate from your system Python, avoiding version conflicts with other projects.
-
-**Create the virtual environment:**
+### Step 2 — Create a virtual environment
 
 **Windows:**
 ```bash
 python -m venv venv
+venv\Scripts\activate
 ```
 
 **macOS / Linux:**
 ```bash
 python3 -m venv venv
-```
-
-**Activate the virtual environment:**
-
-**Windows (Command Prompt):**
-```bash
-venv\Scripts\activate
-```
-
-**Windows (PowerShell):**
-```bash
-venv\Scripts\Activate.ps1
-```
-
-**macOS / Linux:**
-```bash
 source venv/bin/activate
 ```
 
-> ✅ Once activated, you'll see `(venv)` at the start of your terminal line. This means everything you install next will stay isolated to this project.
->
-> 💡 To exit the virtual environment later, simply type `deactivate`.
+> ✅ You'll see `(venv)` in your terminal when it's active. Run `deactivate` to exit later.
 
-### Step 3: Install dependencies
+---
 
-With your virtual environment activated, run:
+### Step 3 — Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-> 💡 **Note**: Inside an activated virtual environment, `pip` automatically points to the correct Python version — no need for `pip3` or `--user`.
+This installs:
+- `selenium` — browser automation
+- `webdriver-manager` — auto-downloads the correct ChromeDriver
+- `python-dotenv` — loads `.env` credentials
+- `streamlit` — web frontend
 
 ---
 
 ## ⚙️ Configuration
 
-You need to tell the bot your IIUI ERP login details. **These are stored locally and never shared.**
+Create a `.env` file in the project root:
 
-### Step 1: Create a `.env` file
-
-In the project's root folder, create a new file named exactly:
-```
-.env
-```
-
-**Windows users:** Note that Windows File Explorer may not let you create a file starting with a dot through the normal "New File" menu. Instead:
-1. Open **Notepad**.
-2. Type your credentials (see below).
-3. Click **File > Save As**.
-4. In the "Save as type" dropdown, choose **"All Files"**.
-5. Name the file `.env` (including the dot) and save it inside the project folder.
-
-**macOS / Linux users:** You can create it directly from the terminal:
+**macOS / Linux:**
 ```bash
 nano .env
 ```
 
-### Step 2: Add your credentials
+**Windows:** Create a new file named `.env` (not `.env.txt`) in the project folder using Notepad → Save As → All Files.
 
-Paste the following into the `.env` file, replacing the placeholders with your real details:
+Paste your credentials:
 
 ```env
-IIUI_REG_NO=your_registration_number_here
-IIUI_PASSWORD=your_password_here
+IIUI_REG_NO=your_registration_number
+IIUI_PASSWORD=your_password
 
-# Optional settings:
-IIUI_HEADLESS=false          # Set to true to hide the browser window
-IIUI_WAIT_TIMEOUT=20         # Seconds to wait for pages to load (increase on slow connections)
+# Optional:
+IIUI_HEADLESS=false        # true = hide browser window
+IIUI_WAIT_TIMEOUT=20       # seconds to wait for pages (increase on slow connections)
 ```
 
-Save and close the file.
-
-> 🔒 **Security note**: Never share your `.env` file or commit it to GitHub. If using Git, make sure `.env` is listed in your `.gitignore` file.
+> 🔒 The `.env` file is listed in `.gitignore` — it will never be uploaded to GitHub.
 
 ---
 
 ## ▶️ Usage
 
-> 💡 If you closed your terminal since installation, make sure to **activate the virtual environment again** before running the bot (see Installation Step 2). You should see `(venv)` in your terminal.
+### Option A — Streamlit Web UI *(Recommended)*
 
-### Step 1: Run the bot
-
-**Windows:**
 ```bash
-python iiui_survey_bot.py
+streamlit run app.py
 ```
 
-**macOS / Linux:**
-```bash
-python3 iiui_survey_bot.py
-```
+Then open **http://localhost:8501** in your browser.
 
-### Step 2: Select your rating
+**What you'll see:**
 
-At startup, the bot will display a menu:
+1. Enter your **Registration Number** and **Password** in the form
+2. Select a **Rating** (Strongly Agree is default)
+3. Optionally edit the **Comment** text
+4. Click **🚀 Start Survey Bot**
+5. Watch the live log stream as the bot works
+6. A summary card shows how many surveys were completed, skipped, or failed
 
-```
-═══════════════════════════════════════════════════════
-  SELECT DEFAULT RATING FOR ALL RADIO QUESTIONS
-═══════════════════════════════════════════════════════
-  1. Strongly Agree
-  2. Agree
-  3. Neutral
-  4. Disagree
-  5. Strongly Disagree
-  (Press ENTER to keep default: Strongly Agree)
-═══════════════════════════════════════════════════════
-```
-
-Type a number (1–5) and press ENTER, or just press ENTER to use "Strongly Agree".
-
-### Step 3: Follow the on-screen prompts
-
-1. The bot will open Chrome and **automatically log in** to the ERP portal.
-2. The bot will **automatically navigate** to the surveys listing page.
-3. **Click on a specific survey** in the browser to open it.
-4. Switch back to the terminal and press **ENTER** — this triggers the auto-fill.
-5. **Review** the filled-in answers and comments on the survey page.
-6. **Submit the survey manually** (the bot does not click submit for you, by design).
-7. Repeat steps 3–6 for any additional surveys.
+> 💡 No `.env` file needed when using the Streamlit UI — credentials are entered directly in the form.
 
 ---
 
-## 🛠️ Troubleshooting
+### Option B — Command Line
 
-| Problem | Possible Fix |
-|---|---|
-| `command not found: python` | Use `python3` instead of `python` (common on macOS/Linux), or reinstall Python and check "Add to PATH". |
-| `cannot be loaded because running scripts is disabled` (PowerShell) | Run PowerShell as Administrator and execute: `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`, then try activating the venv again. |
-| `ModuleNotFoundError` | Make sure your virtual environment is activated (you should see `(venv)`), then re-run `pip install -r requirements.txt`. |
-| Chrome doesn't open / version mismatch error | Make sure Google Chrome is up to date — `webdriver-manager` will auto-download the matching driver. |
-| Login fails | Double-check your `.env` file for typos and make sure there are no extra spaces around the `=` sign. A screenshot will be saved to `./debug_screenshots/` to help diagnose the issue. |
-| `.env` file not found | Make sure the file is named exactly `.env` (not `.env.txt`) and is in the same folder as the script. |
-| Survey fields not filled | Make sure you have opened a **specific survey page** (not just the listing) before pressing ENTER in the terminal. |
-| Page times out | Increase `IIUI_WAIT_TIMEOUT` in your `.env` (e.g., `IIUI_WAIT_TIMEOUT=40`). |
+```bash
+# Windows
+python iiui_survey_bot.py
+
+# macOS / Linux
+python3 iiui_survey_bot.py
+```
+
+**What happens:**
+
+1. A rating menu appears — pick 1–5 or press Enter for Strongly Agree
+2. Bot opens Chrome, logs in automatically
+3. Navigates to the surveys page
+4. Finds all pending surveys and fills + submits each one
+5. Prints a summary when done
+
+---
+
+## 🔁 How the Automation Works
+
+```
+Login → /student/student-survey
+           ↓
+   Scan table for pending rows
+   (skips "Response Submitted" badges)
+           ↓
+   For each pending survey:
+     Open survey link
+     Fill radios / textareas / selects
+     Click Submit
+     Handle confirm dialogs
+     Go back → re-scan
+           ↓
+   Print summary
+```
+
+The bot loops until no more pending surveys are found (up to 20 passes safety cap).
 
 ---
 
@@ -218,24 +177,32 @@ Type a number (1–5) and press ENTER, or just press ENTER to use "Strongly Agre
 
 ```
 iiui_survey_bot/
-├── venv/                  # Virtual environment (created by you, not in Git)
-├── debug_screenshots/     # Auto-created; failure screenshots saved here
-├── iiui_survey_bot.py     # Main script
+├── app.py                 # Streamlit web frontend
+├── iiui_survey_bot.py     # Core bot engine (CLI + importable class)
 ├── requirements.txt       # Python dependencies
-├── .env                   # Your credentials (you create this)
-├── .gitignore             # Excludes venv/ and .env from Git
+├── .env                   # Your credentials (you create this — not in Git)
+├── .gitignore             # Excludes .env, venv/, debug_screenshots/
+├── debug_screenshots/     # Auto-created; failure PNGs saved here
 └── README.md              # This file
 ```
 
-> 🔒 **Important**: Add a `.gitignore` file with the following lines so you never accidentally upload your credentials or virtual environment:
-> ```
-> venv/
-> .env
-> debug_screenshots/
-> ```
+---
+
+## 🛠️ Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `command not found: python` | Use `python3` on macOS/Linux, or reinstall Python with "Add to PATH" checked |
+| `ModuleNotFoundError` | Activate the venv first: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows), then `pip install -r requirements.txt` |
+| Chrome doesn't open | Update Google Chrome — `webdriver-manager` auto-downloads the matching driver |
+| Login fails | Check your `.env` for typos. A screenshot is saved to `./debug_screenshots/` |
+| Survey fields not filled | Make sure a survey page is open; check `debug_screenshots/` for clues |
+| Page times out | Set `IIUI_WAIT_TIMEOUT=40` in `.env` |
+| "All surveys already submitted" | All evaluations for the current period are done — nothing to fill |
+| Streamlit port in use | Run `streamlit run app.py --server.port 8502` to use a different port |
 
 ---
 
 ## 📄 License & Disclaimer
 
-This project is intended for **educational purposes and personal automation only**. Use responsibly and ensure compliance with your university's IT and academic integrity policies.
+For **educational and personal automation** use only. Use responsibly and in accordance with IIUI's IT policies.
