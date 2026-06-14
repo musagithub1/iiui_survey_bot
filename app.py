@@ -77,18 +77,52 @@ label, .stTextInput label, .stSelectbox label, .stTextArea label {
 }
 
 /* ── Inputs ── */
-.stTextInput input, .stTextArea textarea {
-    background: rgba(255,255,255,0.07) !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
+.stTextInput input,
+.stTextInput input:focus,
+.stTextArea textarea,
+.stTextArea textarea:focus,
+div[data-baseweb="input"] input,
+div[data-baseweb="textarea"] textarea {
+    background: #1a1740 !important;
+    background-color: #1a1740 !important;
+    border: 1px solid rgba(167,139,250,0.35) !important;
     border-radius: 12px !important;
-    color: #fff !important;
+    color: #ffffff !important;
+    caret-color: #a78bfa !important;
     padding: 0.65rem 1rem !important;
     font-size: 0.95rem !important;
-    transition: border 0.2s ease;
+    font-family: 'Inter', sans-serif !important;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
 }
-.stTextInput input:focus, .stTextArea textarea:focus {
+.stTextInput input:focus,
+.stTextArea textarea:focus,
+div[data-baseweb="input"] input:focus,
+div[data-baseweb="textarea"] textarea:focus {
     border-color: #a78bfa !important;
-    box-shadow: 0 0 0 3px rgba(167,139,250,0.18) !important;
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.20) !important;
+    outline: none !important;
+}
+/* Placeholder text */
+.stTextInput input::placeholder,
+.stTextArea textarea::placeholder {
+    color: rgba(255,255,255,0.35) !important;
+}
+/* BaseWeb wrapper — kill its own background */
+div[data-baseweb="input"],
+div[data-baseweb="textarea"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+/* Password eye icon */
+div[data-baseweb="input"] button,
+div[data-baseweb="input"] button:hover,
+div[data-baseweb="input"] button:focus {
+    background: #1a1740 !important;
+    background-color: #1a1740 !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: rgba(255,255,255,0.55) !important;
+    border-radius: 0 12px 12px 0 !important;
 }
 
 /* ── Selectbox ── */
