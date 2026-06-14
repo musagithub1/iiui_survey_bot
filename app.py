@@ -261,6 +261,7 @@ def run_bot_thread(reg_no: str, password: str, rating: str, comment: str,
 
     try:
         log_q.put("🚀  Launching browser (headless)…")
+        # Always headless from the Streamlit UI (no display in thread / cloud)
         bot = IIUISurveyBot(reg_no=reg_no, password=password, headless=True)
 
         log_q.put("🔐  Logging in…")

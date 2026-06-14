@@ -159,7 +159,8 @@ class IIUISurveyBot:
         self.password = (password or os.getenv("IIUI_PASSWORD",  "")).strip()
 
         if headless is None:
-            headless = os.getenv("IIUI_HEADLESS", "false").lower() == "true"
+            # Always headless on cloud / CI (no display available)
+            headless = os.getenv("IIUI_HEADLESS", "false").lower() == "true" or self._is_cloud()
         if timeout is None:
             timeout = int(os.getenv("IIUI_WAIT_TIMEOUT", "20"))
         self.timeout = timeout
@@ -168,31 +169,85 @@ class IIUISurveyBot:
         self._ss_dir.mkdir(exist_ok=True)
 
         opts = Options()
-        if headless:
+        # Always headless when running on cloud (no display)
+        if headless or self._is_cloud():
             opts.add_argument("--headless=new")
         opts.add_argument("--no-sandbox")
         opts.add_argument("--disable-dev-shm-usage")
         opts.add_argument("--disable-gpu")
+        opts.add_argument("--disable-extensions")
+        opts.add_argument("--disable-infobars")
         opts.add_argument("--window-size=1280,900")
         opts.add_argument("--log-level=3")
+        opts.add_argument("--remote-debugging-port=9222")
         opts.add_experimental_option("excludeSwitches", ["enable-logging"])
 
         try:
-            try:
-                from webdriver_manager.chrome import ChromeDriverManager
-                logger.info("Launching Chrome via webdriver-manager…")
-                self.driver = webdriver.Chrome(
-                    service=Service(ChromeDriverManager().install()), options=opts
-                )
-            except ImportError:
-                logger.warning("webdriver-manager not found — using system ChromeDriver.")
-                self.driver = webdriver.Chrome(options=opts)
-
+            self.driver = self._init_driver(opts)
             self.wait = WebDriverWait(self.driver, self.timeout)
             logger.info(f"Browser ready. (timeout={self.timeout}s, headless={headless})")
         except WebDriverException as exc:
             logger.error(f"ChromeDriver failed to start: {exc}")
             raise
+
+    @staticmethod
+    def _is_cloud() -> bool:
+        """Detect Streamlit Cloud / CI — no display available."""
+        return (
+            os.getenv("STREAMLIT_SHARING_MODE") is not None   # Streamlit Cloud
+            or os.getenv("CI") is not None                     # GitHub Actions / CI
+            or not os.getenv("DISPLAY", "")                    # No X display (Linux cloud)
+        )
+
+    @staticmethod
+    def _init_driver(opts: Options):
+        """
+        Try to start a Chrome/Chromium driver in this order:
+          1. System Chromium (Streamlit Cloud / Linux servers)
+          2. webdriver-manager managed Chrome (local dev)
+          3. Bare system chromedriver (fallback)
+        """
+        CHROMIUM_BINS = [
+            "/usr/bin/chromium",
+            "/usr/bin/chromium-browser",
+            "/snap/bin/chromium",
+        ]
+        CHROMEDRIVER_BINS = [
+            "/usr/bin/chromedriver",
+            "/usr/lib/chromium/chromedriver",
+            "/usr/lib/chromium-browser/chromedriver",
+        ]
+
+        # 1 ── System Chromium (cloud)
+        for binary in CHROMIUM_BINS:
+            if Path(binary).exists():
+                logger.info(f"Using system Chromium: {binary}")
+                opts.binary_location = binary
+                # Find matching chromedriver
+                for driver_bin in CHROMEDRIVER_BINS:
+                    if Path(driver_bin).exists():
+                        return webdriver.Chrome(
+                            service=Service(driver_bin), options=opts
+                        )
+                # chromedriver not at known path — try bare
+                try:
+                    return webdriver.Chrome(options=opts)
+                except Exception:
+                    pass
+
+        # 2 ── webdriver-manager (local Chrome)
+        try:
+            from webdriver_manager.chrome import ChromeDriverManager
+            logger.info("Launching Chrome via webdriver-manager…")
+            return webdriver.Chrome(
+                service=Service(ChromeDriverManager().install()), options=opts
+            )
+        except ImportError:
+            pass
+
+        # 3 ── Bare system chromedriver
+        logger.warning("webdriver-manager not found — using system chromedriver.")
+        return webdriver.Chrome(options=opts)
 
     # ── Helpers ────────────────────────────────────────────────────────────────
     def _ss(self, label: str):
