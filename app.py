@@ -3,22 +3,38 @@ IIUI Survey Bot — Streamlit Frontend
 Run with: streamlit run app.py
 """
 
+import sys
+import os
+from pathlib import Path
+
+# ── Ensure the project root is on sys.path (required on Streamlit Cloud) ───────
+# Streamlit Cloud mounts code at /mount/src/<repo>/ but the CWD may differ.
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+
 import queue
 import logging
 import threading
 import time
-import os
-from pathlib import Path
 
 import streamlit as st
 
-# ── Page config (MUST be first Streamlit call) ─────────────────────────────────
+# ── Page config MUST be the very first Streamlit call ─────────────────────────
 st.set_page_config(
     page_title="IIUI Survey Bot",
     page_icon="🤖",
     layout="centered",
     initial_sidebar_state="collapsed",
 )
+
+# ── Import bot (after page config so st.error / st.stop work correctly) ───────
+try:
+    from iiui_survey_bot import IIUISurveyBot
+except ImportError as _e:
+    st.error(f"❌ Cannot import bot module: {_e}")
+    st.info("💡 Make sure `iiui_survey_bot.py` is in the same directory as `app.py`.")
+    st.stop()
 
 # ── Custom CSS ─────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -252,7 +268,7 @@ class QueueLogHandler(logging.Handler):
 # ── Bot runner (runs in a background thread) ──────────────────────────────────
 def run_bot_thread(reg_no: str, password: str, rating: str, comment: str,
                    log_q: queue.Queue, result: dict):
-    from iiui_survey_bot import IIUISurveyBot
+    # IIUISurveyBot is already imported at module level
 
     handler = QueueLogHandler(log_q)
     root = logging.getLogger()
