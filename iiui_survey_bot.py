@@ -151,11 +151,12 @@ class IIUISurveyBot:
     _SUBMITTED_TEXTS = {"response submitted", "submitted", "completed", "filled"}
 
     # ── Init ───────────────────────────────────────────────────────────────────
-    def __init__(self, headless=None, timeout=None):
+    def __init__(self, reg_no=None, password=None, headless=None, timeout=None):
         self.driver = None
 
-        self.reg_no   = os.getenv("IIUI_REG_NO", "").strip()
-        self.password = os.getenv("IIUI_PASSWORD", "").strip()
+        # Direct params take priority over env vars
+        self.reg_no   = (reg_no   or os.getenv("IIUI_REG_NO",   "")).strip()
+        self.password = (password or os.getenv("IIUI_PASSWORD",  "")).strip()
 
         if headless is None:
             headless = os.getenv("IIUI_HEADLESS", "false").lower() == "true"
